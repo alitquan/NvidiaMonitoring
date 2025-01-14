@@ -3,8 +3,12 @@ import subprocess
 import time 
 import re
 
-user_usage = Gauge('nvidia_user_usage', 'User Space CPU Usage') 
-sys_usage = Gauge('nvidia_sys_usage', 'System Space CPU Usage')
+
+# defining Gauges
+user_percentage = Gauge('nvidia_user_usage', 'CPU Usage in User Space') 
+sys_percentage = Gauge('nvidia_sys_usage', 'CPU Usage in System Space') 
+idle_percenage = Gauge('nvidia_idle_usage', 'CPU Idle Time Percentage') 
+
 
 
 # get overall system metrics 
@@ -20,19 +24,26 @@ def get_top_header():
         print(f"get_top_header error: {e}")
         return 0.0
 
+
+
+# parse the info and set the gauges
 def parse_top_header(): 
     top_header = get_top_header()
 
     # using regular expressions to extract percentages
-    usr_use= re.search(r'(\d+)%user',top_header) 
-    sys_use= re.search(r'(\d+)%sys', top_header)
-    idle_percentage = re.search(r'(\d+)%idle', top_header) 
+    usr_use= int(re.search(r'(\d+)%user',top_header).group(1))
+    sys_use= int(re.search(r'(\d+)%sys', top_header).group(1))
+    idle_use = int(re.search(r'(\d+)%idle', top_header).group(1))
 
     # proof of concept 
-    print(top_header)
-    print("System Percentage: ", str(sys_use.group(1))) 
-    print("User Percentage: ", str(usr_use.group(1))) 
-    print("Idle Percentage: ", str(idle_percentage.group(1)))
+    # print(top_header)
+    # print("System Percentage: ", str(sys_use.group(1))) 
+    # print("User Percentage: ", str(usr_use.group(1))) 
+    # print("Idle Percentage: ", str(idle_use.group(1)))
+    
+    user_percentage.set(usr_use)
+    sys_percentage.set(sys_use) 
+    idle_percenage.set(idle_use) 
 
 
 
@@ -40,9 +51,8 @@ def parse_top_header():
 
 if __name__ == '__main__':
     # start Prometheus HTTP server on port 8000
-    # start_http_server(8000)
+    start_http_server(8000)
 
     while True:
-        # get_top_header()
-        parse_top_header() 
+        parse_top_header()
         time.sleep(5)
