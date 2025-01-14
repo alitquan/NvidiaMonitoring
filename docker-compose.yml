@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    networks:
+      - localprom
+    ports:
+      - "9822:3000"
+    restart: unless-stopped
+  prometheus:
+    image: prom/prometheus
+    networks:
+      - localprom
+    container_name: prometheus
+    ports:
+      - "9823:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+  node-exporter:
+    image: prom/node-exporter
+    networks:
+      - localprom
+    container_name: node-exporter
+    ports:
+      - "9825:9100"
+    restart: unless-stopped
+networks:
+  localprom:
+    driver: bridge
+
