@@ -7,7 +7,7 @@ already="is nothing to do"
 tight=$(echo "$tight" | xargs)
 
 if echo "$tight" | grep -qi "$already"; then
-    echo "Already installed"
+    echo 
 else
     echo "$tight"
 fi
@@ -33,17 +33,18 @@ monitorq=$(echo $monitorq | tr '[:upper:]' '[:lower:]')
 
 if [ "$monitorq" == "y" ] || [ "$monitorq" == "yes" ] || [ -z "$monitorq" ]; then
     adb connect "$NVIDIA_IP:$NVIDIA_PORT" 
-    echo "Continuing .."  
     echo 
 else
+    echo "Not a valid choice" 
     exit 0 
 fi
 
 devices=$(adb devices) 
-echo -e "Displaying devices..."
+if [ -z "$devices" ]; then
+    echo -e "Displaying devices..."
+    echo -e $devices
+else 
+    echo "No devices located"
+fi
 echo 
-echo -e $devices
-
-
-
 
